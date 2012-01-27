@@ -7,7 +7,7 @@ var connect = require('connect'),
 var server = express.createServer();
 server.configure(function(){
     server.use(connect.bodyParser());
-    server.use(connect.static(__dirname + '/static')); // This is not working
+    server.use("/static", express.static(__dirname + '/static'));
     server.use(server.router);
 });
 
