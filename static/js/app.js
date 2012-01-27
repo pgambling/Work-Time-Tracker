@@ -11,7 +11,7 @@ app.onProjectStart = function () {
 };
 
 app.onProjectStop = function () {
-	console.log("Stop project " + app.$selectProject.val());	
+	console.log("Stop project " + app.$selectProject.val());
 };
 
 app.onLunchStart = function () {
@@ -31,5 +31,5 @@ $(function () {
 	$('#btnProjectStart').on('click', app.onProjectStart);
 	$('#btnLunchStart').on('click', app.onLunchStart);
 	$('#btnLunchEnd').on('click', app.onLunchEnd);
-	$('#btnProjectStop').on('click', app.onProjectStop);		
+	$('#btnProjectStop').on('click', app.onProjectStop);
 });

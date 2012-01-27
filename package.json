@@ -1,0 +1,13 @@
+{
+  "name": "WORK-TIME-TRACKER",
+  "description": "Simple project time tracker for work.",
+  "author": "Philippe Gambling <pgambling@gmail.com>",
+  "version": "0.0.1",
+  "dependencies": {
+    "connect": ">= 1.8.5",
+    "express": ">= 2.5.2",
+    "jade": ">= 0.20.0",
+    "mongoose": ">= 2.4.8"
+  },
+  "engine": "node >= 0.6.6"
+}
