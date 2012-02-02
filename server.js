@@ -1,43 +1,27 @@
-//setup Dependencies
-var connect = require('connect'),
-    express = require('express'),
-    port = (process.env.PORT || 8081);
+var application_root = __dirname,
+  express = require("express"),
+  path = require("path"),
+  mongoose = require('mongoose');
 
-//Setup Express
-var server = express.createServer();
-server.configure(function(){
-    server.use(connect.bodyParser());
-    server.use("/static", express.static(__dirname + '/static'));
-    server.use(server.router);
+var app = express.createServer();
+
+// model
+// mongoose.connect('mongodb://localhost/time_tracking');
+
+// TODO Add some db modelss
+
+app.configure(function(){
+  app.use(express.bodyParser());
+  app.use(app.router);
+  app.use(express.static(path.join(application_root, "public")));
+  app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+  app.set('view engine', 'ejs');
+  app.set('view options', { layout: false });
+  app.register('.html', require('ejs'));
 });
 
-server.listen( port);
-
-///////////////////////////////////////////
-//              Routes                   //
-///////////////////////////////////////////
-
-/////// ADD ALL YOUR ROUTES HERE  /////////
-
-server.get('/', function(req,res){
-  res.sendfile(__dirname + '/index.html');
+app.get('/', function(req, res){
+  res.render('index.html');
 });
 
-
-//A Route for Creating a 500 Error (Useful to keep around)
-server.get('/500', function(req, res){
-    throw new Error('This is a 500 Error');
-});
-
-//The 404 Route (ALWAYS Keep this as the last route)
-server.get('/*', function(req, res){
-    throw new NotFound();
-});
-
-function NotFound(msg){
-    this.name = 'NotFound';
-    Error.call(this, msg);
-    Error.captureStackTrace(this, arguments.callee);
-}
-
-console.log('Listening on http://127.0.0.1:' + port );
+app.listen(3000);
