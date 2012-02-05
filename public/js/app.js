@@ -33,3 +33,39 @@ $(function () {
 	$('#btnLunchEnd').on('click', app.onLunchEnd);
 	$('#btnProjectStop').on('click', app.onProjectStop);
 });
+
+// Test code
+app.createUser = function (name) {
+	$.ajax({
+		type: 'PUT',
+		url: '/users/' + name,
+		data: {},
+		success: function (data) { console.log(data); }
+	});
+};
+
+app.getProjects = function () {
+	$.get('/projects', function (data) {
+		console.log(data);
+	});
+};
+
+app.getProject = function (projectName) {
+	$.get('/projects/'+projectName, function (data) {
+		console.log(data);
+	});
+};
+
+app.updateProject = function(projectName, actionStr) {
+	$.post('/projects/'+projectName, { action: actionStr }, function(data) {
+		console.log(data);
+	});
+};
+
+app.startProject = function(projectName) {
+	app.updateProject(projectName, 'start');
+};
+
+app.stopProject = function(projectName) {
+	app.updateProject(projectName, 'stop');
+};

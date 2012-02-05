@@ -8,17 +8,16 @@ var app = express.createServer();
 // model
 mongoose.connect('mongodb://localhost/time_tracking');
 
-var ProjectDay = mongoose.model('ProjectDay', new mongoose.Schema({
-  user: String,
-  date: String,
-  projectName: String,
-  secondsWorked: Number
+var ProjectWork = mongoose.model('ProjectWork', new mongoose.Schema({
+  username: String,
+  name: String,
+  start: Date,
+  end: Date // TODO What does this default to?
 }));
 
 var User = mongoose.model('User', new mongoose.Schema({
-  username: String,
-  currentProjectId: Schema.ObjectId,
-  projectStartTime: Date
+  username: { type: String, unique: true },
+  _currentProject: { type: mongoose.Schema.ObjectId, ref: 'ProjectWork'}
 }));
 
 
@@ -36,45 +35,72 @@ app.get('/', function(req, res){
   res.render('index.html');
 });
 
-// TODO Add routes to get at db models
+var g_userName = 'pgambling'; // TODO Hardcoded for now until I add auth support
 
-app.get('/:userName/:projectName', function(req, res) {
-   return ProjectDay.find({user: req.params.userName, projectName: req.params.projectName }, function (err, projects) {
+app.put('/users/:userName', function (req, res) {
+  var newUser = new User({ userName: g_userName});
+  newUser.save();
+});
+
+app.get('/projects', function (req, res) {
+  // TODO Add start and end date filtering
+  return ProjectWork.find({userName: g_userName}, function (err, projects) {
+    if(!err) return res.send(projects);
+  });
+});
+
+app.get('/projects/:projectName', function(req, res) {
+   return ProjectWork.find({userName: g_userName, name: req.params.projectName }, function (err, projects) {
        if(!err) return res.send(projects);
    });
 });
 
-// app.get('/project/:name/:date', function(req, res) {
+app.post('/projects/:projectName', function(req, res) {
+  User.findOne({userName: g_userName})
+  .populate('_currentProject')
+  .run(function(err, user) {
+    if(err) return;
 
-//    return ProjectTime.findOne({projectName: req.params.name, date: req.params.date }, function (err, projects) {
-//        if(!err) return res.send(doc);
-//    });
-// });
+    var bStartingProject = req.body.action === "start",
+        currentProject = user._currentProject,
+        projectName = req.params.projectName,
+        now = new Date();
 
-app.post('/:userName/start/:projectName', function(req, res) {
-  // TODO Get user
-  // TODO If currently working another project, stop that one and update its time
-  // TODO Can I invoke the "stop" api from here?
-  // TODO Create a new project (or find existing one for today?) (record start, stop time pairs?)
+    if(currentProject) {
+      // Bail if the user already started this project
+      //
+      if(bStartingProject && projectName === currentProject.name) return;
 
-  // TODO Update user with current project and current time
+      // Stop the current project because we either stopped the current one or started a new one
+      //
+      currentProject.end = now;
+      currentProject.save();
 
-  // Save to DB
-  var project = new ProjectDay({
-    user: req.params.userName,
-    date: new Date(),
-    projectName: req.params.projectName,
-    secondsWorked: 0
-  });
-  project.save(function (err) {
-    if(!err) {
-      res.send(project);
+      if(!bStartingProject) {
+        user._currentProject = null; // TODO Can I do this?
+        user.save();
+        return;
+      }
     }
+    else {
+      // Bail if there is no project to stop
+      //
+      if(!bStartingProject) return;
+    }
+
+    // Start a new project
+    //
+    var newProject = new ProjectWork({
+      userName: g_userName,
+      name: projectName,
+      start: now
+    });
+    newProject.save(function (err) {
+      if(err) return;
+      user._currentProject = newProject;
+      user.save();
+    });
   });
 });
-
-// app.put('/project/start/:name', function(req, res) {
-  // TODO Use this for the manual edit page?
-// });
 
 app.listen(3000);
