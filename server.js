@@ -5,6 +5,8 @@ var application_root = __dirname,
 
 var app = express.createServer();
 
+var g_userName = 'pgambling'; // TODO Hardcoded for now until I add actual user accounts
+
 // model
 mongoose.connect('mongodb://localhost/time_tracking');
 
@@ -20,22 +22,43 @@ var User = mongoose.model('User', new mongoose.Schema({
   _currentProject: { type: mongoose.Schema.ObjectId, ref: 'ProjectWork'}
 }));
 
+User.getUser = function (userName, callback) {
+  User.findOne({userName: g_userName})
+  .populate('_currentProject')
+  .run(callback);
+};
 
 app.configure(function(){
   app.use(express.bodyParser());
   app.use(app.router);
-  app.use(express.static(path.join(application_root, "public")));
-  app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
   app.set('view engine', 'ejs');
   app.set('view options', { layout: false });
   app.register('.html', require('ejs'));
 });
 
-app.get('/', function(req, res){
-  res.render('index.html');
+app.configure('development', function(){
+    app.use(express['static'](path.join(application_root, "public")));
+    app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 });
 
-var g_userName = 'pgambling'; // TODO Hardcoded for now until I add auth support
+app.configure('production', function(){
+  var oneYear = 31557600000;
+  app.use(express['static'](path.join(application_root, "public"), { maxAge: oneYear }));
+  app.use(express.errorHandler());
+});
+
+app.get('/', function(req, res){
+  User.getUser(g_userName, function (err, user) {
+      if(err) throw err;
+
+      var projectName = '';
+      if(user._currentProject) projectName = user._currentProject.name;
+
+      res.render('index.html', {
+        currentProjectName: projectName
+      });
+  });
+});
 
 app.put('/users/:userName', function (req, res) {
   var newUser = new User({ userName: g_userName});
@@ -55,50 +78,59 @@ app.get('/projects/:projectName', function(req, res) {
    });
 });
 
+var startNewProject = function (user, projectName, startTime, res) {
+    var newProject = new ProjectWork({
+      userName: user.username,
+      name: projectName,
+      start: startTime
+    });
+    newProject.save(function (err) {
+      if(err) throw err;
+
+      user._currentProject = newProject;
+      user.save(function (err) {
+        if(err) throw err;
+
+        return res.send();
+      });
+    });
+};
+
 app.post('/projects/:projectName', function(req, res) {
-  User.findOne({userName: g_userName})
-  .populate('_currentProject')
-  .run(function(err, user) {
-    if(err) return;
+  var now = new Date();
+
+  User.getUser(g_userName, function (err, user) {
+    if(err) throw err;
 
     var bStartingProject = req.body.action === "start",
         currentProject = user._currentProject,
-        projectName = req.params.projectName,
-        now = new Date();
+        projectName = req.params.projectName;
 
-    if(currentProject) {
-      // Bail if the user already started this project
-      //
-      if(bStartingProject && projectName === currentProject.name) return;
-
-      // Stop the current project because we either stopped the current one or started a new one
-      //
-      currentProject.end = now;
-      currentProject.save();
-
-      if(!bStartingProject) {
-        user._currentProject = null; // TODO Can I do this?
-        user.save();
-        return;
-      }
-    }
-    else {
-      // Bail if there is no project to stop
-      //
-      if(!bStartingProject) return;
-    }
-
-    // Start a new project
+    // Bail if there is no project to stop
     //
-    var newProject = new ProjectWork({
-      userName: g_userName,
-      name: projectName,
-      start: now
-    });
-    newProject.save(function (err) {
-      if(err) return;
-      user._currentProject = newProject;
-      user.save();
+    if(!currentProject && !bStartingProject) return res.send();
+
+    // Bail if trying to start current project again
+    //
+    if(bStartingProject && currentProject && projectName === currentProject.name) return res.send();
+
+    if(!currentProject) { return startNewProject(user, projectName, now, res); }
+
+    // Stop the current project because we either stopped the current one or started a new one
+    //
+    currentProject.end = now;
+    currentProject.save(function (err) {
+      if(bStartingProject) {
+        return startNewProject(user, projectName, now, res);
+      }
+      else {
+        user._currentProject = null;
+        user.save(function (err) {
+          if(err) throw err;
+
+          return res.send();
+        });
+      }
     });
   });
 });
