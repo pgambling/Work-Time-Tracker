@@ -25,7 +25,7 @@ app.configure('production', function(){
 });
 
 app.get('/', routes.getIndex);
-app.put('/users/:userName', routes.createUser);
+app.put('/users/:username', routes.createUser);
 app.get('/projects', routes.getAllProjects);
 app.get('/reports/projecttotals', routes.getProjectTotals);
 app.get('/projects/:projectName', routes.getProject);

@@ -11,14 +11,14 @@ models.ProjectWork = mongoose.model('ProjectWork', new mongoose.Schema({
 }));
 
 /**
-@param userName - Find projects belonging to this user.
+@param username - Find projects belonging to this user.
 @param filters - (optional) Additional filters to apply to the query
 					{ start, end }
 @param callback
 */
-models.ProjectWork.getProjectsForUser = function (userName) {
+models.ProjectWork.getProjectsForUser = function (username) {
 	var callback = arguments[arguments.length-1],
-		query = this.find().where('username', userName);
+		query = this.find().where('username', username);
 
 	if(arguments.length >= 3) {
 		var params = arguments[1],
@@ -41,8 +41,8 @@ models.User = mongoose.model('User', new mongoose.Schema({
   _currentProject: { type: mongoose.Schema.ObjectId, ref: 'ProjectWork'}
 }));
 
-models.User.getUser = function (userName, callback) {
-  this.findOne({userName: userName})
+models.User.getUser = function (username, callback) {
+  this.findOne({username: username})
   .populate('_currentProject')
   .run(callback);
 };

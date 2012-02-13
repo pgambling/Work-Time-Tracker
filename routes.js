@@ -1,13 +1,13 @@
 var models = require('./models'),
 	routes = {},
-	g_userName = 'pgambling'; // TODO Hardcoded for now until I add actual user accounts
+	g_username = 'pgambling'; // TODO Hardcoded for now until I add actual user accounts
 
 routes.getIndex = function (req, res) {
-	models.User.getUser(g_userName, function (err, user) {
+	models.User.getUser(g_username, function (err, user) {
 		if(err) throw err;
 
 		var projectName = '';
-		if(user._currentProject) projectName = user._currentProject.name;
+		if(user && user._currentProject) projectName = user._currentProject.name;
 
 		res.render('index.html', {
 			currentProjectName: projectName
@@ -16,19 +16,19 @@ routes.getIndex = function (req, res) {
 };
 
 routes.createUser = function (req, res) {
-  var newUser = new models.User({ userName: g_userName});
+  var newUser = new models.User({ username: g_username});
   newUser.save();
 };
 
 routes.getAllProjects = function (req, res) {
   // TODO Add start and end date filtering
-  return models.ProjectWork.find({username: g_userName}, function (err, projects) {
+  return models.ProjectWork.find({username: g_username}, function (err, projects) {
     if(!err) return res.send(projects);
   });
 };
 
 routes.getProject = function (req, res) {
-   return models.ProjectWork.find({username: g_userName, name: req.params.projectName }, function (err, projects) {
+   return models.ProjectWork.find({username: g_username, name: req.params.projectName }, function (err, projects) {
        if(!err) return res.send(projects);
    });
 };
@@ -54,7 +54,7 @@ var startNewProject = function (user, projectName, startTime, res) {
 routes.updateProject  = function (req, res) {
   var now = new Date();
 
-  models.User.getUser(g_userName, function (err, user) {
+  models.User.getUser(g_username, function (err, user) {
     if(err) throw err;
 
     var bStartingProject = req.body.action === "start",
@@ -94,7 +94,7 @@ routes.getProjectTotals = function (req, res) {
 	var startTime = new Date(req.query.start),
 		endTime = new Date(req.query.end);
 		
-	models.ProjectWork.getProjectsForUser(g_userName, {start: startTime, end: endTime},
+	models.ProjectWork.getProjectsForUser(g_username, {start: startTime, end: endTime},
 	function (projects) {
 		var timePerProject = { startTime: startTime, endTime: endTime };
 		projects.forEach(function(project) {
