@@ -32,9 +32,26 @@ app.onLunchEnd = function () {
 
 app.onWeeklyReport = function () {
 	console.log("Get weekly report");
+	var startOfWeek = new Date(),
+		endOfWeek = new Date(),
+		dayOfWeek = startOfWeek.getDay();
 	
-	$.get('/projects/report', { start: , end: }, function (data) {
-	// TODO	
+	var daysSinceStartOfWeek = dayOfWeek ? dayOfWeek-1 : 6;
+	startOfWeek.setDate(startOfWeek.getDate() - daysSinceStartOfWeek);
+	startOfWeek.setMilliseconds(0);
+	startOfWeek.setSeconds(0);
+	startOfWeek.setMinutes(0);
+	startOfWeek.setHours(0);
+
+	var daysUntilEndOfWeek = dayOfWeek ? 7 - dayOfWeek : 0;
+	endOfWeek.setDate(endOfWeek.getDate() + daysUntilEndOfWeek);
+	endOfWeek.setMilliseconds(999);
+	endOfWeek.setSeconds(59);
+	endOfWeek.setMinutes(59);
+	endOfWeek.setHours(23);
+
+	$.get('/reports/projecttotals', { start: startOfWeek.toJSON(), end: endOfWeek.toJSON()}, function (data) {
+		$('#divReport').text(JSON.stringify(data));
 	});
 };
 
