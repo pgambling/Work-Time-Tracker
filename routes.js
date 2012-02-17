@@ -98,8 +98,16 @@ routes.getProjectTotals = function (req, res) {
 	function (projects) {
 		var timePerProject = { startTime: startTime, endTime: endTime };
 		projects.forEach(function(project) {
-			var start = project.start < startTime ? startTime : project.start;
-			var end = project.end > endTime ? endTime : project.end;
+      var start = startTime,
+          end = endTime;
+      
+      if(project.start && project.start > startTime) {
+        start = project.start;
+      }
+
+      if(project.end && project.end < endTime) {
+        end = project.end;
+      }
 
 			if(!timePerProject[project.name]) timePerProject[project.name] = 0;
 

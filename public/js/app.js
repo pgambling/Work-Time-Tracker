@@ -1,9 +1,30 @@
 var app = {};
 
 app.projects = [
-	'iSyte',
-	'AS Host',
-	'Backoffice'
+	'iCHEM',
+	'iLEVEL',
+	'iSYTE',
+	'iLEVEL',
+	'HF Hybrid Controller',
+	'iChem C1D2',
+	'Croft Prod. Dehydrator Auto Sys',
+	'EFM3000',
+	'ACiC & iCConnect',
+	'iNodes/BackOffice',
+	'LL III & AutoCycle',
+	'RTU 5x00',
+	'CBM',
+	'AS Host Development',
+	'Customer Support',
+	'Testing Support',
+	'Third Party Host Support',
+	'Repair/Maint/Manufacturing',
+	'Training \\ Personal Development',
+	'Meetings (Non-Project)',
+	'Admin \\ Other General Overhead',
+	'Tools \\ Servers \\ Infrastructure',
+	'Time Off (PTO/Other)',
+	'Holiday'
 ];
 
 app.onProjectStart = function () {
