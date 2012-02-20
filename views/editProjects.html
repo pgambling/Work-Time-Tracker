@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Work Time Tracking</title>
+	<link rel="stylesheet" type="text/css" href="css/app.css" />
+	<script src="https://raw.github.com/olivernn/augment.js/master/augment.min.js" type="text/javascript"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+</head>
+<body>
+	<% if (projects.length) { %>
+	<ul id="projectList">
+	<% projects.forEach(function(project){ %>
+		<li data-project-id="<%= project._id %>">
+		Project <input type="text" class="projectName" value="<%= project.name %>" />
+		<br />
+		Start Time <input type="text" size="38" class="startTime" value="<%= project.start %>" />
+		<br />
+		End Time <input type="text" size="38" class="endTime" value="<%= project.end %>" />
+		<button class="save" style="display: none;">Save</button>
+		</li>
+		<% }) %>
+	</ul>
+	<% } %>
+
+	<script src="js/editProjects.js" type="text/javascript"></script>
+</body>
+</html>

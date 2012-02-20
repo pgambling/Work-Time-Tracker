@@ -36,6 +36,22 @@ models.ProjectWork.getProjectsForUser = function (username) {
 	});
 };
 
+models.ProjectWork.saveProject = function (projectId, data, callback) {
+	models.ProjectWork.findById(projectId, function (err, project) {
+    if(err) throw err;
+    // TODO Add support for creating new projects
+    if(project) {
+		project.name = data.name;
+		project.start = new Date(data.start);
+		project.end = new Date(data.end);
+		project.save(function (err) {
+			if(err) throw err;
+			callback();
+		});
+    }
+  });
+};
+
 models.User = mongoose.model('User', new mongoose.Schema({
   username: { type: String, unique: true },
   _currentProject: { type: mongoose.Schema.ObjectId, ref: 'ProjectWork'}

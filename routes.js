@@ -20,13 +20,6 @@ routes.createUser = function (req, res) {
   newUser.save();
 };
 
-routes.getAllProjects = function (req, res) {
-  // TODO Add start and end date filtering
-  return models.ProjectWork.find({username: g_username}, function (err, projects) {
-    if(!err) return res.send(projects);
-  });
-};
-
 routes.getProject = function (req, res) {
    return models.ProjectWork.find({username: g_username, name: req.params.projectName }, function (err, projects) {
        if(!err) return res.send(projects);
@@ -90,22 +83,30 @@ routes.updateProject  = function (req, res) {
   });
 };
 
+var getFiltersFromRequest = function (req) {
+  var retObj = {};
+
+  if(req.query.start) retObj.start = new Date(req.query.start);
+  if(req.query.end) retObj.end = new Date(req.query.end);
+
+  return retObj;
+};
+
 routes.getProjectTotals = function (req, res) {
-	var startTime = new Date(req.query.start),
-		endTime = new Date(req.query.end);
-		
-	models.ProjectWork.getProjectsForUser(g_username, {start: startTime, end: endTime},
+	var filters = getFiltersFromRequest(req);
+	
+	models.ProjectWork.getProjectsForUser(g_username, filters,
 	function (projects) {
-		var timePerProject = { startTime: startTime, endTime: endTime };
+		var timePerProject = { startTime: filters.start, endTime: filters.end };
 		projects.forEach(function(project) {
-      var start = startTime,
-          end = endTime;
+      var start = filters.start,
+          end = filters.end;
       
-      if(project.start && project.start > startTime) {
+      if(project.start && project.start > start) {
         start = project.start;
       }
 
-      if(project.end && project.end < endTime) {
+      if(project.end && project.end < end) {
         end = project.end;
       }
 
@@ -116,6 +117,20 @@ routes.getProjectTotals = function (req, res) {
 
 		res.send(timePerProject);
 	});
+};
+
+routes.getAllProjects = function (req, res) {
+  models.ProjectWork.getProjectsForUser(g_username,
+  // TODO Fix this - models.ProjectWork.getProjectsForUser(g_username, getFiltersFromRequest(req),
+  function (projects) {
+    res.render('editProjects.html', {projects: projects});
+  });
+};
+
+routes.saveProject = function (req, res) {
+  models.ProjectWork.saveProject(req.params.projectId, req.body, function () {
+    res.send(204);
+  });
 };
 
 module.exports = routes;
