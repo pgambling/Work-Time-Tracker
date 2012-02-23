@@ -97,7 +97,12 @@ routes.getProjectTotals = function (req, res) {
 	
 	models.ProjectWork.getProjectsForUser(g_username, filters,
 	function (projects) {
-		var timePerProject = { startTime: filters.start, endTime: filters.end };
+    var timePerProject = {},
+        report = {
+          startTime: filters.start,
+          endTime: filters.end,
+          timePerProject: timePerProject
+        };
 		projects.forEach(function(project) {
       var start = filters.start,
           end = filters.end;
@@ -115,7 +120,7 @@ routes.getProjectTotals = function (req, res) {
 			timePerProject[project.name] += end - start;
 		});
 
-		res.send(timePerProject);
+		res.send(report);
 	});
 };
 

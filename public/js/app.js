@@ -51,6 +51,29 @@ app.onLunchEnd = function () {
 	app.updateProject('lunch', 'stop');
 };
 
+app.showReport = function (data) {
+	var linesInReport = [],
+		millisecondsInHour = 1000 * 60 * 60,
+		totalHours = 0;
+
+	for(var project in data.timePerProject) {
+		var hours = data.timePerProject[project] / millisecondsInHour;
+		linesInReport.push(project + ': ' + hours.toFixed(2));
+		totalHours += hours;
+	}
+	linesInReport.unshift('-- Project Times --');
+	linesInReport.unshift('Total Hours: ' + totalHours.toFixed(2));
+	linesInReport.unshift('End Time: ' + data.endTime);
+	linesInReport.unshift('Start Time: ' + data.startTime);
+
+	var list = $('<ul>');
+	linesInReport.forEach(function (line) {
+		$('<li>').text(line).appendTo(list);
+	});
+
+	$('#divReport').html(list);
+};
+
 app.onWeeklyReport = function () {
 	console.log("Get weekly report");
 	var startOfWeek = new Date(),
@@ -71,9 +94,7 @@ app.onWeeklyReport = function () {
 	endOfWeek.setMinutes(59);
 	endOfWeek.setHours(23);
 
-	$.get('/reports/projecttotals', { start: startOfWeek.toJSON(), end: endOfWeek.toJSON()}, function (data) {
-		$('#divReport').text(JSON.stringify(data));
-	});
+	$.get('/reports/projecttotals', { start: startOfWeek.toJSON(), end: endOfWeek.toJSON()}, app.showReport);
 };
 
 // Test code
