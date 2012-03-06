@@ -12,13 +12,14 @@
 	<% if (projects.length) { %>
 	<ul id="projectList">
 	<% projects.forEach(function(project){ %>
-		<li data-project-id="<%= project._id %>">
+		<li data-project-id="<%= project._id ? project._id : '' %>">
 		Project <input type="text" class="projectName" value="<%= project.name %>" />
+		<button class="save" style="display: none;">Save</button>
 		<br />
 		Start Time <input type="text" size="38" class="startTime" value="<%= project.start %>" />
 		<br />
 		End Time <input type="text" size="38" class="endTime" value="<%= project.end %>" />
-		<button class="save" style="display: none;">Save</button>
+		<% if(project._id) { %><button class="delete">Delete</button><% } %>
 		</li>
 		<% }) %>
 	</ul>

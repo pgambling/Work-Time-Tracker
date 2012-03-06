@@ -1,5 +1,6 @@
 var models = require('./models'),
 	routes = {},
+  NEW_PROJECT_ID = 'new',
 	g_username = 'pgambling'; // TODO Hardcoded for now until I add actual user accounts
 
 routes.getIndex = function (req, res) {
@@ -27,14 +28,14 @@ routes.getProject = function (req, res) {
 };
 
 var startNewProject = function (user, projectName, startTime, res) {
-    var newProject = new models.ProjectWork({
+    var newProject = new models.ProjectWork();
+
+    models.ProjectWork.createNewProject({
       username: user.username,
       name: projectName,
       start: startTime
-    });
-    newProject.save(function (err) {
-      if(err) throw err;
-
+    },
+    function (newProject) {
       user._currentProject = newProject;
       user.save(function (err) {
         if(err) throw err;
@@ -89,6 +90,8 @@ var getFiltersFromRequest = function (req) {
   if(req.query.start) retObj.start = new Date(req.query.start);
   if(req.query.end) retObj.end = new Date(req.query.end);
 
+  if(!retObj.start || !retObj.end) return undefined;
+
   return retObj;
 };
 
@@ -125,16 +128,40 @@ routes.getProjectTotals = function (req, res) {
 };
 
 routes.getAllProjects = function (req, res) {
-  models.ProjectWork.getProjectsForUser(g_username,
-  // TODO Fix this - models.ProjectWork.getProjectsForUser(g_username, getFiltersFromRequest(req),
+  models.ProjectWork.getProjectsForUser(g_username, getFiltersFromRequest(req),
   function (projects) {
+    projects.unshift({
+      name: "Enter new submission here",
+      start: "",
+      end: ""
+    });
     res.render('editProjects.html', {projects: projects});
   });
 };
 
-routes.saveProject = function (req, res) {
-  models.ProjectWork.saveProject(req.params.projectId, req.body, function () {
+routes.modifyProject = function (req, res) {
+  models.ProjectWork.modifyProject(req.params.projectId, req.body, function () {
     res.send(204);
+  });
+};
+
+routes.createNewProject = function (req, res) {
+  var data = req.body;
+  data.username = g_username;
+  models.ProjectWork.createNewProject(data, function (newProject) {
+    res.send(newProject);
+  });
+};
+
+routes.deleteProject = function (req, res) {
+  models.ProjectWork.findById(req.params.projectId, function (err, project) {
+    if(err) throw err;
+
+    project.remove(function (err) {
+      if(err) throw err;
+
+      res.send(204);
+    });
   });
 };
 

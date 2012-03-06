@@ -26,10 +26,12 @@ app.configure('production', function(){
 
 app.get('/', routes.getIndex);
 app.put('/users/:username', routes.createUser);
-app.put('/projects/:projectId', routes.saveProject);
+app.put('/projects/:projectId', routes.modifyProject);
 app.get('/projects', routes.getAllProjects);
 app.get('/reports/projecttotals', routes.getProjectTotals);
 app.get('/projects/:projectName', routes.getProject);
 app.post('/projects/:projectName', routes.updateProject);
+app.post('/projects/', routes.createNewProject);
+app['delete']('/projects/:projectId', routes.deleteProject);
 
 app.listen(3000);

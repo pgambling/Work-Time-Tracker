@@ -12,20 +12,18 @@ models.ProjectWork = mongoose.model('ProjectWork', new mongoose.Schema({
 
 /**
 @param username - Find projects belonging to this user.
-@param filters - (optional) Additional filters to apply to the query
+@param filters -  Additional filters to apply to the query
 					{ start, end }
 @param callback
 */
-models.ProjectWork.getProjectsForUser = function (username) {
-	var callback = arguments[arguments.length-1],
-		query = this.find().where('username', username);
+models.ProjectWork.getProjectsForUser = function (username, filters, callback) {
+	var query = this.find().where('username', username).desc('end');
 
-	if(arguments.length >= 3) {
-		var params = arguments[1],
-			timeSpan = {};
+	if(filters) {
+		var timeSpan = {};
 
-		if(params.start) timeSpan['$gte'] = params.start;
-		if(params.end) timeSpan['$lte'] = params.end;
+		if(filters.start) timeSpan['$gte'] = filters.start;
+		if(filters.end) timeSpan['$lte'] = filters.end;
 
 		query.or([{start: timeSpan}, {end: timeSpan}]);
 	}
@@ -36,20 +34,28 @@ models.ProjectWork.getProjectsForUser = function (username) {
 	});
 };
 
-models.ProjectWork.saveProject = function (projectId, data, callback) {
+var updateAndSaveProject = function (project, data, callback) {
+	project.name = data.name;
+	project.start = new Date(data.start);
+	project.end = new Date(data.end);
+	project.save(function (err) {
+		if(err) throw err;
+		callback(project);
+	});
+};
+
+models.ProjectWork.modifyProject = function (projectId, data, callback) {
 	models.ProjectWork.findById(projectId, function (err, project) {
     if(err) throw err;
-    // TODO Add support for creating new projects
-    if(project) {
-		project.name = data.name;
-		project.start = new Date(data.start);
-		project.end = new Date(data.end);
-		project.save(function (err) {
-			if(err) throw err;
-			callback();
-		});
-    }
+
+    updateAndSaveProject(project, data, callback);
   });
+};
+
+models.ProjectWork.createNewProject = function (data, callback) {
+	var newProject = new models.ProjectWork();
+	newProject.username = data.username;
+	updateAndSaveProject(newProject, data, callback);
 };
 
 models.User = mongoose.model('User', new mongoose.Schema({

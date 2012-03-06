@@ -9,6 +9,10 @@ app.saveProject = function (id, project, cb) {
 	});
 };
 
+app.createNewProject = function(id, project, cb) {
+	$.post('/projects/', project, cb);
+};
+
 $(function () {
 	$('#projectList')
 	.on('change', 'input', function () {
@@ -21,7 +25,19 @@ $(function () {
 				name: $projectListItem.children('input.projectName').val(),
 				start: $projectListItem.children('input.startTime').val(),
 				end: $projectListItem.children('input.endTime').val()
-			};
-		app.saveProject($projectListItem.data('project-id'), project, function () { $saveBtn.hide(); });
+			},
+			projectId = $projectListItem.data('project-id'),
+			serverAction = projectId ? app.saveProject : app.createNewProject;
+
+		serverAction(projectId, project, function () { $saveBtn.hide(); });
+	})
+	.on('click', 'button.delete', function () {
+		var $projectToDelete = $(this).parent();
+
+		$.ajax({
+			type: 'DELETE',
+			url: '/projects/' + $projectToDelete.data('project-id'),
+			success: function () { $projectToDelete.remove(); }
+		});
 	});
 });
