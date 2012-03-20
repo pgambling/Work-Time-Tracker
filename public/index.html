@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Project Time Tracking</title>
+	<link rel="stylesheet" href="css/main.css">
+	<script data-main="js/main" src="js/libs/require/require.js"></script>
+</head>
+<body>
+
+<div id="mainApp">
+  <div>
+    <label for="selectProject">Projects: </label><select id="selectProject"></select><button class='StartProject'>Start</button>
+  </div>
+  <div><button class='StartLunch'>Start Lunch</button></div>
+
+  <div id="divCurrentProject"></div>
+  <script type="text/template" id="currentProjectTemplate">
+    <span id="projectText"></span> <span id="currentProjectName"><%= currentProjectName %></span> <button id="btnProjectStop">Stop</button>
+    </div>
+  </script>
+  
+  <h2>Project Times</h2>
+  <div>Get time for <button class='Today'>Today</button> <button class='Week'>Work Week</button></div>
+  <table>
+    <thead><tr><th>Project</th><th>Date</th><th>Start</th><th>End</th><th>Hours</th></tr></thead>
+    <tbody id="projectTimesList">
+      <!-- Project time view -->    
+    </tbody>
+  </table>
+  <script type="text/template" id="projectTimeTemplate">
+    <td><%= projectName %></td><td><%= date %></td><td><%= start %></td><td><%= end %></td><td><%= hours %></td><td><button class="editProject">Edit</button></td>
+  </script>
+
+  <h2>Totals</h2>
+  <ul id="reportTotals"></ul>
+  <script type="text/template" id="reportTotalsTemplate">
+    <li>Total Hours: <%= total %></li>
+    <% for(var name in perProjectTotals) { %>
+      <li><%= perProjectTotals[name] %>: <%= name %></li>
+    <% } %>
+  </script>
+</body>
+</html>
