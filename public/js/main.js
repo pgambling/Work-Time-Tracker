@@ -1,17 +1,13 @@
-// Filename: main.js
-
-// Require.js allows us to configure mappings to paths
-// as demonstrated below:
 require.config({
   paths: {
-    jquery: 'libs/jquery/jquery-min',
-    underscore: 'libs/underscore/underscore-min',
-    backbone: 'libs/backbone/backbone-optamd3-min',
-    text: 'libs/require/text'
+    jquery: 'libs/jquery/1.7.1/jquery-1.7.1.min',
+    underscore: 'libs/underscore/1.3.1-amdjs/underscore-min',
+    backbone: 'libs/backbone/0.9.2-amdjs/backbone'
   }
-
 });
 
 require(['views/app'], function(AppView){
-  var app_view = new AppView;
+  $(function () {
+	var app_view = new AppView();
+  });
 });

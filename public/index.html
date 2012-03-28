@@ -10,15 +10,41 @@
 
 <div id="mainApp">
   <div>
-    <label for="selectProject">Projects: </label><select id="selectProject"></select><button class='StartProject'>Start</button>
+    <label for="selectProject">Projects: </label>
+    <select id="selectProject">
+      <option>iCHEM</option>
+      <option>iLEVEL</option>
+      <option>iSYTE</option>
+      <option>iLEVEL</option>
+      <option>HF Hybrid Controller</option>
+      <option>iChem C1D2</option>
+      <option>Croft Prod. Dehydrator Auto Sys</option>
+      <option>EFM3000</option>
+      <option>ACiC &amp; iCConnect</option>
+      <option>iNodes/BackOffice</option>
+      <option>LL III &amp; AutoCycle</option>
+      <option>RTU 5x00</option>
+      <option>CBM</option>
+      <option>AS Host Development</option>
+      <option>Customer Support</option>
+      <option>Testing Support</option>
+      <option>Third Party Host Support</option>
+      <option>Repair/Maint/Manufacturing</option>
+      <option>Training \ Personal Development</option>
+      <option>Meetings (Non-Project)</option>
+      <option>Admin \ Other General Overhead</option>
+      <option>Tools \ Servers \ Infrastructure</option>
+      <option>Time Off (PTO/Other)</option>
+      <option>Holiday</option>
+    </select>
+    <button class='StartProject'>Start</button>
   </div>
   <div><button class='StartLunch'>Start Lunch</button></div>
 
-  <div id="divCurrentProject"></div>
-  <script type="text/template" id="currentProjectTemplate">
-    <span id="projectText"></span> <span id="currentProjectName"><%= currentProjectName %></span> <button id="btnProjectStop">Stop</button>
-    </div>
-  </script>
+  <div id="divCurrentProject" style="display: none;">
+    <h2>Current Project</h2>
+    <span id="currentProjectName"></span> <button id="btnProjectStop">Stop</button>
+  </div>
   
   <h2>Project Times</h2>
   <div>Get time for <button class='Today'>Today</button> <button class='Week'>Work Week</button></div>
@@ -37,7 +63,7 @@
   <script type="text/template" id="reportTotalsTemplate">
     <li>Total Hours: <%= total %></li>
     <% for(var name in perProjectTotals) { %>
-      <li><%= perProjectTotals[name] %>: <%= name %></li>
+      <li><%= name %>: <%= perProjectTotals[name] %></li>
     <% } %>
   </script>
 </body>

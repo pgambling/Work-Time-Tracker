@@ -4,7 +4,7 @@ define([
   'backbone',
   'collections/projecttimes',
   'views/projecttime'
-  ], function($, _, Backbone, ProjectTimes, ProjectTimeView, statsTemplate){
+  ], function($, _, Backbone, ProjectTimes, ProjectTimeView) {
   var AppView = Backbone.View.extend({
 
     el: $("#mainApp"),
@@ -27,8 +27,18 @@ define([
       this.showTodaysTimes();
     },
 
-    // Update the report totals
+    // Update the report and time totals
     render: function() {
+      var currentProject = ProjectTimes.currentProject();
+      var $divCurrentProject = this.$('#divCurrentProject');
+      if(currentProject) {
+        $divCurrentProject.find('#currentProjectName').html(currentProject.escape('name'));
+        $divCurrentProject.show();
+      }
+      else {
+        $divCurrentProject.hide();
+      }
+
       ProjectTimes.each(function (project) {
         var view = new ProjectTimeView({model: project});
         this.$("#projectTimesList").append(view.render().el);
@@ -43,7 +53,27 @@ define([
       }));
 
       return this;
+    },
+
+    startProject: function () {
+        ProjectTimes.create({
+          name: this.$('#selectProject').val(),
+          start: (new Date()).toString()
+        });
+    },
+
+    startLunch: function () {
+
+    },
+
+    showTodaysTimes: function () {
+      ProjectTimes.fetch(); // TODO
+    },
+
+    showTimesForThisWeek: function () {
+      
     }
+
   });
   return AppView;
 });
