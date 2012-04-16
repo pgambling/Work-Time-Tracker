@@ -74,8 +74,7 @@ app.showReport = function (data) {
 	$('#divReport').html(list);
 };
 
-app.onWeeklyReport = function () {
-	console.log("Get weekly report");
+app.thisWeek = function () {
 	var startOfWeek = new Date(),
 		endOfWeek = new Date(),
 		dayOfWeek = startOfWeek.getDay();
@@ -94,7 +93,12 @@ app.onWeeklyReport = function () {
 	endOfWeek.setMinutes(59);
 	endOfWeek.setHours(23);
 
-	$.get('/reports/projecttotals', { start: startOfWeek.toJSON(), end: endOfWeek.toJSON()}, app.showReport);
+	return { start: startOfWeek.toJSON(), end: endOfWeek.toJSON()};
+};
+
+app.onWeeklyReport = function () {
+	console.log("Get weekly report");
+	$.get('/reports/projecttotals', app.thisWeek(), app.showReport);
 };
 
 // Test code
@@ -173,4 +177,8 @@ $(function () {
 		.addClass("error")
 		.text("Request failed: " + jqxhr.statusText);
 	});
+	var $projectsForWeek = $("#linkToThisWeeksTimes");
+	var href = $projectsForWeek.attr('href');
+	dateRange = app.thisWeek();
+	$projectsForWeek.attr('href', href + '?start=' + dateRange.start + '&end=' + dateRange.end); 
 });
